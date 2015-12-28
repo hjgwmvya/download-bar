@@ -1,0 +1,101 @@
+:root
+{
+    --download-bar-hjgwmvya-download-button-border-background: linear-gradient(hsla(0,0%,100%,.6), hsla(0,0%,100%,.1));
+    --download-bar-hjgwmvya-download-button-border-bordercolor: hsla(210,54%,20%,.15) hsla(210,54%,20%,.2) hsla(210,54%,20%,.25);
+    --download-bar-hjgwmvya-download-button-border-boxshadow: 0 1px hsla(0,0%,100%,.3) inset,
+                                                              0 1px hsla(210,54%,20%,.03),
+                                                              0 0 2px hsla(210,54%,20%,.1);
+                                     
+    --download-bar-hjgwmvya-download-button-border-hover-background: linear-gradient(hsla(0,0%,100%,.6), hsla(0,0%,100%,.1));
+    --download-bar-hjgwmvya-download-button-border-hover-bordercolor: hsla(210,54%,20%,.45) hsla(210,54%,20%,.5) hsla(210,54%,20%,.55);
+    --download-bar-hjgwmvya-download-button-border-hover-boxshadow: 0 1px hsla(0,0%,100%,.3) inset,
+                                                                    0 1px hsla(210,54%,20%,.03),
+                                                                    0 0 2px hsla(210,54%,20%,.1);
+
+    --download-bar-hjgwmvya-download-button-border-active-background: hsla(210,54%,20%,.15) linear-gradient(hsla(0,0%,100%,.6), hsla(0,0%,100%,.1));
+    --download-bar-hjgwmvya-download-button-border-active-bordercolor: hsla(210,54%,20%,.3) hsla(210,54%,20%,.35) hsla(210,54%,20%,.4);
+    --download-bar-hjgwmvya-download-button-border-active-boxshadow: 0 1px 1px hsla(210,54%,20%,.1) inset,
+                                                                     0 0 1px hsla(210,54%,20%,.2) inset,
+                                                                     0 1px 0 hsla(210,54%,20%,0),
+                                                                     0 0 2px hsla(210,54%,20%,0);
+}
+
+.download-bar-hjgwmvya-download-bar *
+{
+    font: normal 10px Arial;
+    cursor: default;
+    -moz-user-select: none;
+}
+
+.download-bar-hjgwmvya-download-bar
+{
+    overflow: hidden;
+    padding: 2px;
+}
+
+.download-bar-hjgwmvya-close-button
+{
+    -moz-appearance: none !important;
+    padding: 4px 2px !important;
+    border: none !important;
+}
+
+.download-bar-hjgwmvya-download-container
+{
+    overflow: hidden;
+}
+
+.download-bar-hjgwmvya-download-button
+{
+    margin: 2px 0px 4px 4px;
+    border-radius: 2px;
+}
+
+.download-bar-hjgwmvya-download-button-body
+{
+    width: 200px;
+    overflow: hidden;
+    transition: width 230ms ease-out;
+}
+
+.download-bar-hjgwmvya-download-button-text
+{   
+}
+
+.download-bar-hjgwmvya-download-button-dropmarker
+{
+    margin-left: -1px;
+}
+
+.download-bar-hjgwmvya-download-button-dropmarker-icon
+{
+    width: 11px;
+    
+    background: url("images/dropdown-arrow.png") no-repeat center center;
+}
+
+.download-bar-hjgwmvya-download-button-border
+{   
+    border: 1px solid;
+    border-radius: 2px;
+    
+    background: var(--download-bar-hjgwmvya-download-button-border-background);
+    border-color: var(--download-bar-hjgwmvya-download-button-border-bordercolor);
+    box-shadow: var(--download-bar-hjgwmvya-download-button-border-boxshadow);
+}
+
+.download-bar-hjgwmvya-download-button:hover > .download-bar-hjgwmvya-download-button-border
+{
+    background: var(--download-bar-hjgwmvya-download-button-border-hover-background);
+    border-color: var(--download-bar-hjgwmvya-download-button-border-hover-bordercolor);
+    box-shadow: var(--download-bar-hjgwmvya-download-button-border-hover-boxshadow);
+}
+
+.download-bar-hjgwmvya-download-button-border-pushed,
+.download-bar-hjgwmvya-download-button:hover > .download-bar-hjgwmvya-download-button-border-pushed,
+.download-bar-hjgwmvya-download-button:hover > .download-bar-hjgwmvya-download-button-border:active
+{
+    background: var(--download-bar-hjgwmvya-download-button-border-active-background);
+    border-color: var(--download-bar-hjgwmvya-download-button-border-active-bordercolor);
+    box-shadow: var(--download-bar-hjgwmvya-download-button-border-active-boxshadow);
+}

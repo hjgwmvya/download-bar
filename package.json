@@ -1,0 +1,47 @@
+{
+  "title": "Download Bar",
+  "name": "downloadbar",
+  "id": "downloadbar@hjgwmvya",
+  "version": "0.0.2",
+  "icon": "resource://downloadbar-at-hjgwmvya/data/images/icon-48.png",
+  "description": "This add-on shows an additional bar at the bottom of your browser, which contains all active and completed downloads.",
+  "main": "main.js",
+  "author": "hjgwmvya",
+  "permissions": {
+    "private-browsing": true
+  },
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "preferences": [{
+      "name": "color-progress",
+      "title": "color-progress_title",
+      "type": "color",
+      "value": "#FFFF00"
+  },
+  {
+      "name": "color-succeeded",
+      "title": "color-succeeded_title",
+      "type": "color",
+      "value": "#FFFF00"
+  },
+  {
+      "name": "color-paused",
+      "title": "color-paused_title",
+      "type": "color",
+      "value": "#FFFF00"
+  },
+  {
+      "name": "color-opened",
+      "title": "color-opened_title",
+      "type": "color",
+      "value": "#FFFF55"
+  },
+  {
+      "name": "color-failed",
+      "title": "color-failed_title",
+      "type": "color",
+      "value": "#FF5555"
+  }],
+  "license": "GPL-3.0"
+}
