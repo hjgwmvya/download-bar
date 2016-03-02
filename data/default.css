@@ -22,7 +22,7 @@
 
 .download-bar-hjgwmvya-download-bar *
 {
-    font: normal 10px Arial;
+    /*font: normal 10px Arial;*/
     cursor: default;
     -moz-user-select: none;
 }
@@ -53,13 +53,14 @@
 
 .download-bar-hjgwmvya-download-button-body
 {
-    width: 200px;
     overflow: hidden;
-    transition: width 230ms ease-out;
 }
 
 .download-bar-hjgwmvya-download-button-text
-{   
+{      
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
 }
 
 .download-bar-hjgwmvya-download-button-dropmarker

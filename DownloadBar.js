@@ -8,6 +8,8 @@ const _ = require("sdk/l10n").get;
 const { isBrowserWindow, formatNumber, formatSize, getTimeLeft, formatTime } = require("./utils.js");
 const { DownloadBarMenu } = require("./DownloadBarMenu.js");
 const { DownloadMenu } = require("./DownloadMenu.js");
+const { dashify } = require("./utils.js");
+const { TestDownload } = require("./TestDownload.js");
 
 const MAX_DOWNLOAD_BUTTONS = 10;
 
@@ -26,13 +28,7 @@ const CLASS_DOWNLOAD_BUTTON_TEXT = "download-bar-hjgwmvya-download-button-text";
 const CLASS_DOWNLOAD_BUTTON_DROPMARKER = "download-bar-hjgwmvya-download-button-dropmarker";
 const CLASS_DOWNLOAD_BUTTON_DROPMARKER_ICON = "download-bar-hjgwmvya-download-button-dropmarker-icon";
 
-const COLOR_DOWNLOAD_PROGRESS = "yellow";
-const COLOR_DOWNLOAD_SUCCEEDED = "yellow";
-const COLOR_DOWNLOAD_PAUSED = "yellow";
-const COLOR_DOWNLOAD_OPENED = "#FFFF55";
-const COLOR_DOWNLOAD_FAILED = "#FF5555";
-
-const STATES = [ "progress", "succeeded", "paused", "opened", "failed" ];
+const DOWNLOAD_BUTTON_DUMMY_NAME = "dummy";
 
 function DownloadBar()
 {
@@ -40,10 +36,33 @@ function DownloadBar()
     this.downloads = { };
     this.downloadIds = [ ];
     
-    this.colors = { };
-    this.onPrefChangedHandler = { };
+    this.settings =
+    {
+        showAtStart: null,
+        hideIfEmpty: null,
+        clearOnClose: null,
+        showCloseButton: null,
+        useAnimations: null,
+        buttonWidth: null,
+        fontFamily: null,
+        fontFamilyCustom: null,
+        fontSize: 0,
+        fontColor: null,
+        fontColorCustom: null,
+        stateColorProgress: null,
+        stateColorProgressCustom: null,
+        stateColorSucceeded: null,
+        stateColorSucceededCustom: null,
+        stateColorPaused: null,
+        stateColorPausedCustom: null,
+        stateColorOpened: null,
+        stateColorOpenedCustom: null,
+        stateColorFailed: null,
+        stateColorFailedCustom: null,
+    };
+    this.onSettingChangedHandler = { };
 }
-  
+
 DownloadBar.prototype = {
     register: function()
     {
@@ -51,19 +70,49 @@ DownloadBar.prototype = {
         this.registered = true;
        
         const self = this;
-       
-        for (let index in STATES)
-        {
-            let state = STATES[index];
-            this.colors[state] = simplePrefs.prefs["color-" + state];
 
-            this.onPrefChangedHandler[state] = function()
-            {
-                self.colors[state] = simplePrefs.prefs["color-" + state];
-                self.updateAllDownloadButtons();
-            };
+        let bindSettings = function(source, target, both)
+        {
+            let sourceProperty = dashify(source);
+            let targetProperty = dashify(target);
             
-            simplePrefs.on("color-" + state, this.onPrefChangedHandler[state]);
+            self.onSettingChangedHandler["bind-" + source + "-" + target] = function()
+            {
+                if (simplePrefs.prefs[targetProperty] == simplePrefs.prefs[sourceProperty])
+                    return;
+                
+                simplePrefs.prefs[targetProperty] = simplePrefs.prefs[sourceProperty];
+            };
+            simplePrefs.on(sourceProperty, self.onSettingChangedHandler["bind-" + source + "-" + target]);
+            
+            if (both)
+            {
+                bindSettings(target, source, false);
+            }
+        };
+        bindSettings("fontColor", "fontColorCustom", true);
+        bindSettings("stateColorProgress", "stateColorProgressCustom", true);
+        bindSettings("stateColorSucceeded", "stateColorSucceededCustom", true);
+        bindSettings("stateColorPaused", "stateColorPausedCustom", true);
+        bindSettings("stateColorOpened", "stateColorOpenedCustom", true);
+        bindSettings("stateColorFailed", "stateColorFailedCustom", true);
+        
+        let registerSettingChangedListener = function(settingName)
+        {
+            let propertyName = dashify(settingName);
+           
+            self.settings[settingName] = simplePrefs.prefs[propertyName];
+            self.onSettingChangedHandler[propertyName] = function()
+            {
+                self.settings[settingName] = simplePrefs.prefs[propertyName];
+                self.updateUi();
+            };
+            simplePrefs.on(propertyName, self.onSettingChangedHandler[propertyName]);
+        };
+       
+        for (let settingName in this.settings)
+        {
+            registerSettingChangedListener(settingName);
         }
         
         this.handleWindowOpened = function(window)
@@ -87,17 +136,56 @@ DownloadBar.prototype = {
         {
             this.handleWindowOpened(window);
         }
+        
+        let createTestDownload = function(id, text, opened, state)
+        {
+            let download = new TestDownload(self, id);
+            download.opened = opened;
+            download.totalBytes = 1000000;
+            download.currentBytes = (state != "succeeded") ? download.totalBytes / 2 : download.totalBytes;
+            download.url = text;
+            download.speed = 0;
+            download.hasProgress = (state != "succeeded");
+            download.progress = (state != "succeeded") ? 50 : 100;
+            download.state = state;
+            
+            self.updateDownloadButton(download);
+        };
+        
+        simplePrefs.on("show-test-downloads", function()
+        {        
+            self.showDownloadBar();
+            createTestDownload("test-canceled", _("test-canceled"), false, "canceled");
+            createTestDownload("test-opened", _("test-opened"), true, "succeeded");
+            createTestDownload("test-succeeded", _("test-succeeded"), false, "succeeded");
+            createTestDownload("test-stopped", _("test-stopped"), false, "stopped");
+            createTestDownload("test-paused", _("test-paused"), false, "paused");
+            createTestDownload("test-downloading", _("test-downloading"), false, "downloading");
+        });
+        simplePrefs.on("hide-test-downloads", function()
+        {        
+            self.removeDownloadButton({ id: "test-canceled" });
+            self.removeDownloadButton({ id: "test-opened" });
+            self.removeDownloadButton({ id: "test-succeeded" });
+            self.removeDownloadButton({ id: "test-stopped" });
+            self.removeDownloadButton({ id: "test-paused" });
+            self.removeDownloadButton({ id: "test-downloading" });
+        });
+        
+        if (this.settings.showAtStart)
+        {
+            this.showDownloadBar();
+        }
     },
     unregister: function()
     {
         if (!this.registered) return;
         this.registered = false;
-        
-        for (let index in STATES)
+               
+        for (let propertyName in this.onSettingChangedHandler)
         {
-            let state = STATES[index];            
-            simplePrefs.removeListener("color-" + state, this.onPrefChangedHandler[state]);
-            this.onPrefChangedHandler[state] = null;
+            simplePrefs.removeListener(propertyName, this.onSettingChangedHandler[propertyName]);
+            delete this.onSettingChangedHandler[propertyName];
         }
         
         observer.off('open', this.handleWindowOpened);
@@ -108,21 +196,52 @@ DownloadBar.prototype = {
             this.handleWindowClosed(window);
         }
     },
-    
-    closeDownloadBar: function()
+          
+    showDownloadBar: function()
     {
         for (let window of windows("navigator:browser", { includePrivate:true }))
         {
-            this.closeDownloadBarInternal(window);
+            let document = window.document;
+            let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
+            
+            downloadBar.hidden = false;
+        }
+    },
+          
+    updateUi: function()
+    {
+        for (let window of windows("navigator:browser", { includePrivate:true }))
+        {
+            if (!isBrowserWindow(window)) continue;
+            
+            this.updateUiInternal(window);
         }
     },
     
-    updateAllDownloadButtons: function()
-    {
-        for (let index in this.downloads)
+    updateUiInternal: function(window)
+    {   
+        this.updateDownloadButtonInternal(window, { id: DOWNLOAD_BUTTON_DUMMY_NAME });
+        for (let id in this.downloads)
         {
-            let download = this.downloads[index];
-            this.updateDownloadButton(download);
+            let download = this.downloads[id];
+            this.updateDownloadButtonInternal(window, download);
+        }
+               
+        let document = window.document;
+        
+        let closeButton = document.querySelector("." + CLASS_CLOSE_BUTTON);
+        if (closeButton)
+        {
+            closeButton.hidden = !this.settings.showCloseButton;
+        }
+                
+        if (this.settings.hideIfEmpty && this.downloadIds.length == 0)
+        {
+            let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
+            if (downloadBar)
+            {
+                downloadBar.hidden = true;
+            }
         }
     },
     
@@ -136,6 +255,78 @@ DownloadBar.prototype = {
         }
     },
     
+    updateDownloadButtonInternal: function(window, download)
+    {
+        if (!isBrowserWindow(window)) return;
+    
+        let document = window.document;
+        let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
+        if (!downloadBar) return;
+        
+        let downloadButton = document.getElementById(download.id);       
+        if (!downloadButton)
+        {
+            downloadButton = this.createDownloadButton(window, download);
+        }
+
+        downloadButton.body.style.fontFamily = (this.settings.fontFamily != "(Custom)") ? this.settings.fontFamily : this.settings.fontFamilyCustom;
+        downloadButton.body.style.fontSize = (this.settings.fontSize > 0) ? this.settings.fontSize + "px" : "90%";
+        downloadButton.body.style.color = (this.settings.fontColorCustom) ? this.settings.fontColorCustom : "inherit";
+        downloadButton.body.style.transition = (this.settings.useAnimations) ? "width 230ms ease-out" : null;
+        downloadButton.body.style.width = (this.settings.buttonWidth > 0) ? this.settings.buttonWidth + "px" : "200px";
+        
+        let textNode = document.querySelector("#" + download.id + " ." + CLASS_DOWNLOAD_BUTTON_TEXT + ".state");
+        
+        if (download.hasProgress)
+        {
+            if (download.state == "error" || download.state == "canceled")
+            {
+                downloadButton.style.background = "linear-gradient(90deg, " + this.settings.stateColorFailedCustom + " " + download.progress + "%, transparent " + download.progress + "%)";
+            }
+            else if (download.state == "paused")
+            {
+                downloadButton.style.background = "linear-gradient(90deg, " + this.settings.stateColorPausedCustom + " " + download.progress + "%, transparent " + download.progress + "%)";
+            }
+            else if (download.state == "succeeded" && !download.opened)
+            {
+                downloadButton.style.background = this.settings.stateColorSucceededCustom;
+            }
+            else if (download.state == "succeeded" && download.opened)
+            {
+                downloadButton.style.background = this.settings.stateColorOpenedCustom;
+            }
+            else
+            {
+                downloadButton.style.background = "linear-gradient(90deg, " + this.settings.stateColorProgressCustom + " " + download.progress + "%, transparent " + download.progress + "%)";
+            }
+        
+            let downloadState = (download.state != "downloading") ? _("state-" + download.state) : formatTime(getTimeLeft(download.currentBytes, download.totalBytes, download.speed));
+            textNode.setAttribute("value", download.progress + "% (" + formatSize(download.currentBytes, download.totalBytes) + ") - " + downloadState);
+        }
+        else
+        {
+            if (download.state == "error" || download.state == "canceled")
+            {
+                downloadButton.style.background = this.settings.stateColorFailedCustom;
+            }
+            else if (download.state == "succeeded" && !download.opened)
+            {
+                downloadButton.style.background = this.settings.stateColorSucceededCustom;
+            }
+            else if (download.state == "succeeded" && download.opened)
+            {
+                downloadButton.style.background = this.settings.stateColorOpenedCustom;
+            }
+            else
+            {
+                downloadButton.style.background = "";
+            }
+            
+            let downloadState = (download.state != "downloading") ? _("state-" + download.state) : formatNumber(formatSize(download.speed)) + "/s";
+            textNode.setAttribute("value", formatSize(download.currentBytes, null) + " - " + downloadState);
+        }
+    },
+    
     removeDownloadButton: function(download)
     {
         this.removeDownload(download);
@@ -143,6 +334,38 @@ DownloadBar.prototype = {
         for (let window of windows("navigator:browser", { includePrivate:true }))
         {
             this.removeDownloadButtonInternal(window, download);
+        }
+    },
+    
+    removeDownloadButtonInternal: function(window, download)
+    {
+        const self = this;
+    
+        if (!isBrowserWindow(window)) return;
+    
+        let document = window.document;
+    
+        let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
+        if (!downloadBar) return;
+        
+        let downloadContainer = downloadBar.downloadContainer;
+        
+        let downloadButton = document.getElementById(download.id);
+        if (!downloadButton) return;
+        
+        if (this.settings.useAnimations && !downloadBar.hidden)
+        {
+            downloadButton.addEventListener("transitionend", function()
+            {
+                downloadContainer.removeChild(downloadButton);
+                self.updateUiInternal(window);
+            }, false);
+            downloadButton.body.style.width = "0";
+        }
+        else
+        {
+            downloadContainer.removeChild(downloadButton);
+            self.updateUiInternal(window);
         }
     },
     
@@ -222,6 +445,7 @@ DownloadBar.prototype = {
         downloadContainer.appendChild(spacer);
         
         let closeButton = document.createElement("toolbarbutton");
+        closeButton.hidden = true;
         closeButton.classList.add("close-icon");
         closeButton.classList.add("tabbable");
         closeButton.classList.add(CLASS_CLOSE_BUTTON);
@@ -248,11 +472,8 @@ DownloadBar.prototype = {
             dropDownMarker.classList.remove(CLASS_DOWNLOAD_BUTTON_BORDER_PUSHED);        
         });
         
-        for (let index in this.downloads)
-        {
-            let download = this.downloads[index];
-            this.updateDownloadButtonInternal(window, download);
-        }
+        this.createDownloadButton(window, { id: DOWNLOAD_BUTTON_DUMMY_NAME });
+        this.updateUiInternal(window);
     },
     
     destroyDownloadBar: function(window)
@@ -318,9 +539,13 @@ DownloadBar.prototype = {
         let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
         let downloadContainer = downloadBar.downloadContainer;
     
-        downloadBar.hidden = false;
-    
+        if (this.downloadIds.length > 0)
+        {
+            downloadBar.hidden = false;
+        }
+        
         let downloadButton = document.createElement("hbox");
+        downloadButton.style.visibility = (download.id == DOWNLOAD_BUTTON_DUMMY_NAME) ? "hidden" : "visible";
         downloadButton.setAttribute("id", download.id);
         downloadButton.classList.add(CLASS_DOWNLOAD_BUTTON);
         downloadButton.setAttribute("tooltiptext", download.url);
@@ -373,105 +598,28 @@ DownloadBar.prototype = {
         
         return downloadButton;
     },
-    
-    updateDownloadButtonInternal: function(window, download)
+   
+    closeDownloadBar: function()
     {
-        if (!isBrowserWindow(window)) return;
-    
-        let document = window.document;
-        let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
-        if (!downloadBar) return;
-        
-        let downloadButton = document.getElementById(download.id);
-        
-        if (!downloadButton)
+        for (let window of windows("navigator:browser", { includePrivate:true }))
         {
-            downloadButton = this.createDownloadButton(window, download);
+            this.closeDownloadBarInternal(window);
         }
         
-        let textNode = document.querySelector("#" + download.id + " ." + CLASS_DOWNLOAD_BUTTON_TEXT + ".state");
-        if (download.hasProgress)
+        if (this.settings.clearOnClose)
         {
-            if (download.state == "error" || download.state == "canceled")
+            for (let id in this.downloads)
             {
-                downloadButton.style.background = "linear-gradient(90deg, " + this.colors.failed + " " + download.progress + "%, transparent " + download.progress + "%)";
+                let download = this.downloads[id];
+                download.remove();
             }
-            else if (download.state == "paused")
-            {
-                downloadButton.style.background = "linear-gradient(90deg, " + this.colors.paused + " " + download.progress + "%, transparent " + download.progress + "%)";
-            }
-            else if (download.state == "succeeded" && !download.opened)
-            {
-                downloadButton.style.background = this.colors.succeeded;
-            }
-            else if (download.state == "succeeded" && download.opened)
-            {
-                downloadButton.style.background = this.colors.opened;
-            }
-            else
-            {
-                downloadButton.style.background = "linear-gradient(90deg, " + this.colors.progress + " " + download.progress + "%, transparent " + download.progress + "%)";
-            }
-        
-            let downloadState = (download.state != "downloading") ? _("state-" + download.state) : formatTime(getTimeLeft(download.currentBytes, download.totalBytes, download.speed));
-            textNode.setAttribute("value", download.progress + "% (" + formatSize(download.currentBytes, download.totalBytes) + ") - " + downloadState);
         }
-        else
-        {
-            if (download.state == "error" || download.state == "canceled")
-            {
-                downloadButton.style.background = this.colors.failed;
-            }
-            else if (download.state == "succeeded" && !download.opened)
-            {
-                downloadButton.style.background = this.colors.succeeded;
-            }
-            else if (download.state == "succeeded" && download.opened)
-            {
-                downloadButton.style.background = this.colors.opened;
-            }
-            else
-            {
-                downloadButton.style.background = "";
-            }
-            
-            let downloadState = (download.state != "downloading") ? _("state-" + download.state) : formatNumber(formatSize(download.speed)) + "/s";
-            textNode.setAttribute("value", formatSize(download.currentBytes, null) + " - " + downloadState);
-        }
-    },
-
-    removeDownloadButtonInternal: function(window, download)
-    {
-        const self = this;
-    
-        if (!isBrowserWindow(window)) return;
-    
-        let document = window.document;
-    
-        let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
-        if (!downloadBar) return;
-        
-        let downloadContainer = downloadBar.downloadContainer;
-        
-        let downloadButton = document.getElementById(download.id);
-        if (!downloadButton) return;
-        
-        downloadButton.addEventListener("transitionend", function()
-        {
-            downloadContainer.removeChild(downloadButton);
-            
-            if (self.downloadIds.length == 0)
-            {
-                downloadBar.hidden = true;
-            }
-        }, false);
-        downloadButton.body.style.width = "0";
     },
     
     closeDownloadBarInternal: function(window)
-    {
+    {   
         const self = this;
-    
+        
         if (!isBrowserWindow(window)) return;
     
         let document = window.document;
@@ -479,7 +627,18 @@ DownloadBar.prototype = {
         let downloadBar = document.getElementById(ID_DOWNLOAD_BAR);
         if (!downloadBar) return;
         
-        downloadBar.hidden = true;
+        if (!this.settings.useAnimations || downloadBar.hidden || !this.settings.clearOnClose || this.downloadIds.length == 0)
+        {
+            downloadBar.hidden = true;
+        }
+        else
+        {
+            let downloadButton = document.getElementById(this.downloadIds[0]);           
+            downloadButton.addEventListener("transitionend", function()
+            {
+                downloadBar.hidden = true;
+            }, false);
+        }
     },
 };
 

@@ -33,6 +33,14 @@ Following commands are possible for a download:
 
 Completed downloads can be opened with a left click. Active downloads can be paused or resumed with a left click. Additional commands are accessible with a right click.
 
+With Version 0.0.3 there are more options to customize Download Bar:
+
+ * Font color, size and family can be changed
+ * Button size and different state colors can be changed
+ * Visibility of the close button can be set
+ * Animations can be disabled
+ * Behaviors can be customized
+
 ## License
 
-[GPL-3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)[GPL-3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
+[GPL-3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)

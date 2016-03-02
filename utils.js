@@ -1,4 +1,13 @@
-exports.isBrowserWindow = isBrowserWindow;    
+exports.dashify = dashify;
+function dashify(value)
+{
+    value = value.replace(/([a-z])([A-Z])/g, '$1-$2');
+    value = value.replace(/[ \t\W]/g, '-');
+    value = value.replace(/^\W+/, '');
+    return value.toLowerCase();
+}
+        
+exports.isBrowserWindow = isBrowserWindow;
 function isBrowserWindow(window)
 {
     if (!window.document || !window.document.documentElement) return false;
@@ -42,13 +51,13 @@ function formatSize(currentBytes, totalBytes)
     {
         if (totalBytes)
         {
-            currentBytes = Math.floor(currentBytes / 1000);
-            totalBytes = Math.floor(totalBytes / 1000);
+            currentBytes = Math.floor(currentBytes / 1024);
+            totalBytes = Math.floor(totalBytes / 1024);
             formatedSize = formatNumber(currentBytes) + "/" + formatNumber(totalBytes) + " " + units[unitIndex];
         }
         else
         {
-            currentBytes = Math.floor(currentBytes / 1000);
+            currentBytes = Math.floor(currentBytes / 1024);
             formatedSize = formatNumber(currentBytes) + " " + units[unitIndex];
         }
         

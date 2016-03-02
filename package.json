@@ -2,7 +2,7 @@
   "title": "Download Bar",
   "name": "downloadbar",
   "id": "downloadbar@hjgwmvya",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "icon": "resource://downloadbar-at-hjgwmvya/data/images/icon-48.png",
   "description": "This add-on shows an additional bar at the bottom of your browser, which contains all active and completed downloads.",
   "main": "main.js",
@@ -14,34 +14,194 @@
     "firefox": ">=38.0a1"
   },
   "preferences": [{
-      "name": "color-progress",
-      "title": "color-progress_title",
-      "type": "color",
-      "value": "#FFFF00"
+    "name": "show-test-downloads",
+    "title": "show-test-downloads_title",
+    "type": "control",
+    "label": "show-test-downloads_label"
   },
   {
-      "name": "color-succeeded",
-      "title": "color-succeeded_title",
-      "type": "color",
-      "value": "#FFFF00"
+    "name": "hide-test-downloads",
+    "title": "hide-test-downloads_title",
+    "type": "control",
+    "label": "hide-test-downloads_label"
   },
   {
-      "name": "color-paused",
-      "title": "color-paused_title",
-      "type": "color",
-      "value": "#FFFF00"
+    "name": "show-at-start",
+    "title": "show-at-start_title",
+    "type": "bool",
+    "value": false
   },
   {
-      "name": "color-opened",
-      "title": "color-opened_title",
-      "type": "color",
-      "value": "#FFFF55"
+    "name": "hide-if-empty",
+    "title": "hide-if-empty_title",
+    "type": "bool",
+    "value": true
   },
   {
-      "name": "color-failed",
-      "title": "color-failed_title",
-      "type": "color",
-      "value": "#FF5555"
+    "name": "clear-on-close",
+    "title": "clear-on-close_title",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "show-close-button",
+    "title": "show-close-button_title",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "use-animations",
+    "title": "use-animations_title",
+    "type": "bool",
+    "value": true
+  },
+  {
+    "name": "button-width",
+    "title": "button-width_title",
+    "type": "integer",
+    "value": 0
+  },
+  {
+    "name": "font-family",
+    "title": "font-family_title",
+    "type": "menulist",
+    "value": "inherit",
+    "options": [{
+      "value": "inherit",
+      "label": "(Default)"
+    },
+    {
+      "value": "(Custom)",
+      "label": "(Custom)"
+    },
+    {
+      "value": "arial",
+      "label": "arial"
+    },
+    {
+      "value": "courier",
+      "label": "courier"
+    },
+    {
+      "value": "helvetica",
+      "label": "helvetica"
+    },
+    {
+      "value": "helvetica neue",
+      "label": "helvetica neue"
+    },
+    {
+      "value": "lucida grande",
+      "label": "lucida grande"
+    },
+    {
+      "value": "open Sans",
+      "label": "open Sans"
+    },
+    {
+      "value": "sans-serif",
+      "label": "sans-serif"
+    },
+    {
+      "value": "segoe ui",
+      "label": "segoe ui"
+    },
+    {
+      "value": "tahoma",
+      "label": "tahoma"
+    },
+    {
+      "value": "monospace",
+      "label": "monospace"
+    },
+    {
+      "value": "verdana",
+      "label": "verdana"
+    }]
+  },
+  {
+    "name": "font-family-custom",
+    "title": "font-family-custom_title",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "name": "font-size",
+    "title": "font-size_title",
+    "type": "integer",
+    "value": 0
+  },
+  {
+    "name": "font-color",
+    "title": "font-color_title",
+    "type": "color",
+    "value": ""
+  },
+  {
+    "name": "font-color-custom",
+    "title": "font-color-custom_title",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "name": "state-color-progress",
+    "title": "state-color-progress_title",
+    "type": "color",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-progress-custom",
+    "title": "state-color-progress-custom_title",
+    "type": "string",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-succeeded",
+    "title": "state-color-succeeded_title",
+    "type": "color",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-succeeded-custom",
+    "title": "state-color-succeeded-custom_title",
+    "type": "string",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-paused",
+    "title": "state-color-paused_title",
+    "type": "color",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-paused-custom",
+    "title": "state-color-paused-custom_title",
+    "type": "string",
+    "value": "#FFFF00"
+  },
+  {
+    "name": "state-color-opened",
+    "title": "state-color-opened_title",
+    "type": "color",
+    "value": "#FFFF55"
+  },
+  {
+    "name": "state-color-opened-custom",
+    "title": "state-color-opened-custom_title",
+    "type": "string",
+    "value": "#FFFF55"
+  },
+  {
+    "name": "state-color-failed",
+    "title": "state-color-failed_title",
+    "type": "color",
+    "value": "#FF5555"
+  },
+  {
+    "name": "state-color-failed-custom",
+    "title": "state-color-failed-custom_title",
+    "type": "string",
+    "value": "#FF5555"
   }],
   "license": "GPL-3.0"
 }
