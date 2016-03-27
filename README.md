@@ -41,6 +41,12 @@ With Version 0.0.3 there are more options to customize Download Bar:
  * Animations can be disabled
  * Behaviors can be customized
 
+## Localization
+
+Thanks go to the following contributors of translations.
+
+Polish by [vengigat](https://github.com/vengigat)
+
 ## License
 
 [GPL-3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)

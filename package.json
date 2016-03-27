@@ -2,7 +2,7 @@
   "title": "Download Bar",
   "name": "downloadbar",
   "id": "downloadbar@hjgwmvya",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "icon": "resource://downloadbar-at-hjgwmvya/data/images/icon-48.png",
   "description": "This add-on shows an additional bar at the bottom of your browser, which contains all active and completed downloads.",
   "main": "main.js",
