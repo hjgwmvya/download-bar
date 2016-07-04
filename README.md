@@ -41,6 +41,11 @@ With Version 0.0.3 there are more options to customize Download Bar:
  * Animations can be disabled
  * Behaviors can be customized
 
+With Version 0.0.5 there are two additional user settings:
+
+ * Hide auto opening downloads
+ * Download button text - Download URL or Local File Path
+
 ## Localization
 
 Thanks go to the following contributors of translations.
