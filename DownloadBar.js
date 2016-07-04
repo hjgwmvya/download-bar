@@ -41,6 +41,8 @@ function DownloadBar()
         showAtStart: null,
         hideIfEmpty: null,
         clearOnClose: null,
+        hideAutoOpeningDownloads: null,
+        downloadButtonText: null,
         showCloseButton: null,
         useAnimations: null,
         buttonWidth: null,
@@ -249,6 +251,8 @@ DownloadBar.prototype = {
     {
         this.addDownload(download);
     
+        if (!this.downloads[download.id]) return;
+    
         for (let window of windows("navigator:browser", { includePrivate:true }))
         {
             this.updateDownloadButtonInternal(window, download);
@@ -269,6 +273,10 @@ DownloadBar.prototype = {
             downloadButton = this.createDownloadButton(window, download);
         }
 
+        let downloadUrlOrPath = (this.settings.downloadButtonText == "url") ? download.url : download.path;
+        downloadButton.setAttribute("tooltiptext", downloadUrlOrPath);
+        downloadButton.Text.setAttribute("value", downloadUrlOrPath);
+        
         downloadButton.body.style.fontFamily = (this.settings.fontFamily != "(Custom)") ? this.settings.fontFamily : this.settings.fontFamilyCustom;
         downloadButton.body.style.fontSize = (this.settings.fontSize > 0) ? this.settings.fontSize + "px" : "90%";
         downloadButton.body.style.color = (this.settings.fontColorCustom) ? this.settings.fontColorCustom : "inherit";
@@ -373,6 +381,12 @@ DownloadBar.prototype = {
     {
         if (this.downloads[download.id]) return;
     
+        if (this.settings.hideAutoOpeningDownloads && 
+            download.isAutoOpen)
+        {
+            return;
+        }
+        
         this.downloads[download.id] = download;
         this.downloadIds.push(download.id);
         
@@ -384,13 +398,13 @@ DownloadBar.prototype = {
     
     removeDownload: function(download)
     {
+        if (!this.downloads[download.id]) return;
+    
         this.removeDownloadInernal(download.id);
     },
     
     removeDownloadInernal: function(downloadId)
-    {
-        if (!this.downloads[downloadId]) return;
-        
+    {       
         delete this.downloads[downloadId];
         for (let index = this.downloadIds.length - 1; index >= 0; index--)
         {
@@ -544,11 +558,13 @@ DownloadBar.prototype = {
             downloadBar.hidden = false;
         }
         
+        let downloadUrlOrPath = (this.settings.downloadButtonText == "url") ? download.url : download.path;
+        
         let downloadButton = document.createElement("hbox");
         downloadButton.style.visibility = (download.id == DOWNLOAD_BUTTON_DUMMY_NAME) ? "hidden" : "visible";
         downloadButton.setAttribute("id", download.id);
         downloadButton.classList.add(CLASS_DOWNLOAD_BUTTON);
-        downloadButton.setAttribute("tooltiptext", download.url);
+        downloadButton.setAttribute("tooltiptext", downloadUrlOrPath);
         if (downloadContainer.hasChildNodes())
         {
             downloadContainer.insertBefore(downloadButton, downloadContainer.firstChild);
@@ -572,8 +588,9 @@ DownloadBar.prototype = {
         downloadButtonText1.classList.add(CLASS_DOWNLOAD_BUTTON_TEXT);
         downloadButtonText1.classList.add("url");
         downloadButtonText1.setAttribute("crop", "center");
-        downloadButtonText1.setAttribute("value", download.url);
+        downloadButtonText1.setAttribute("value", downloadUrlOrPath);
         downloadButton.body.appendChild(downloadButtonText1);
+        downloadButton.Text = downloadButtonText1;
         
         let downloadButtonText2 = document.createElement("label");
         downloadButtonText2.classList.add(CLASS_DOWNLOAD_BUTTON_TEXT);

@@ -2,7 +2,7 @@
   "title": "Download Bar",
   "name": "downloadbar",
   "id": "downloadbar@hjgwmvya",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "icon": "resource://downloadbar-at-hjgwmvya/data/images/icon-48.png",
   "description": "This add-on shows an additional bar at the bottom of your browser, which contains all active and completed downloads.",
   "main": "main.js",
@@ -42,6 +42,26 @@
     "title": "clear-on-close_title",
     "type": "bool",
     "value": true
+  },
+  {
+    "name": "hide-auto-opening-downloads",
+    "title": "hide-auto-opening-downloads_title",
+    "type": "bool",
+    "value": false
+  },
+  {
+    "name": "download-button-text",
+    "title": "download-button-text_title",
+    "type": "menulist",
+    "value": "url",
+    "options": [{
+      "value": "url",
+      "label": "Download URL"
+    },
+    {
+      "value": "path",
+      "label": "Local File Path"
+    }]
   },
   {
     "name": "show-close-button",

@@ -51,7 +51,7 @@ DownloadManager.prototype = {
     },
     
     createDownload: function(rawDownload)
-    {
+    {       
         let downloadId = this.ids.get(rawDownload);
         if (!downloadId)
         {
@@ -84,7 +84,7 @@ DownloadManager.prototype = {
     },
     
     onDownloadAdded: function(download)
-    {
+    {   
         for (let listener of this.downloadAddedListener)
         {
             listener(this.createDownload(download));

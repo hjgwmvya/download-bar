@@ -3,11 +3,14 @@ const { Cu, Cc, Ci } = require("chrome");
 const { DownloadsCommon } = require("resource:///modules/DownloadsCommon.jsm");
 const { FileUtils } = require("resource://gre/modules/FileUtils.jsm");
 
+const { DownloadHelper } = require("./DownloadHelper.js");
+
 function Download(rawDownload, id)
 {
     this.rawDownload = rawDownload;
     this.id = id;
     this.opened = false;
+    this.isAutoOpen = DownloadHelper.isAutoOpenEnabled(rawDownload);
     this.listener = [ ];
 }
 
